@@ -187,6 +187,7 @@ var resultNameStyle = {
 
 var preStyle = {
 	fontFamily: 'sans-serif',
+	whiteSpace: 'pre-wrap',
 	margin: 0
 };
 
