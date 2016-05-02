@@ -158,7 +158,7 @@ var Pos = React.createClass({
 			pos = match[1] + ':' + match[2];
 		}
 		match = this.props.pos.match(/(.*):(.*)/);
-		if (match) {
+		if (!pos && match) {
 			pos = this.props.pos;
 		}
 		if (!pos) {
