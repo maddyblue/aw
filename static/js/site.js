@@ -121,7 +121,7 @@ var Results = React.createClass({
 					null,
 					React.createElement(
 						'tbody',
-						null,
+						{ style: { verticalAlign: 'top' } },
 						lines
 					)
 				);

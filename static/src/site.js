@@ -89,7 +89,7 @@ var Results = React.createClass({
 				});
 				content = (
 					<table>
-						<tbody>{lines}</tbody>
+						<tbody style={{verticalAlign: 'top'}}>{lines}</tbody>
 					</table>
 				);
 			} else {
