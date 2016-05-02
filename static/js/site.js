@@ -123,7 +123,7 @@ var Results = React.createClass({
 			} else {
 				content = React.createElement(
 					'pre',
-					{ style: { fontFamily: 'sans-serif' } },
+					{ style: preStyle },
 					r.Data
 				);
 			}
@@ -181,6 +181,7 @@ var resultNameStyle = {
 };
 
 var preStyle = {
+	fontFamily: 'sans-serif',
 	margin: 0
 };
 

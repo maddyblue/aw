@@ -92,7 +92,7 @@ var Results = React.createClass({
 					</table>
 				);
 			} else {
-				content = <pre style={{fontFamily: 'sans-serif'}}>{r.Data}</pre>;
+				content = <pre style={preStyle}>{r.Data}</pre>;
 			}
 			return (
 				<div key={idx}>
@@ -122,6 +122,7 @@ var resultNameStyle = {
 };
 
 var preStyle = {
+	fontFamily: 'sans-serif',
 	margin: 0
 };
 
