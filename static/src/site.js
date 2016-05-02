@@ -26,10 +26,7 @@ var Main = React.createClass({
 		body.set('scope', this.state.Scope);
 		Fetch('command', {
 			method: 'POST',
-			body: body,
-			headers: {
-				'Accept': 'application/json'
-			}
+			body: body
 		}).then(function(data) {
 			this.setState({Results: [data].concat(this.state.Results)});
 		}.bind(this));
