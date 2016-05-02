@@ -164,8 +164,7 @@ func Command(r *http.Request) (interface{}, error) {
 	s := string(b)
 	if err != nil {
 		s = fmt.Sprintf("%s: %s", err, s)
-	}
-	if !cmd.ProcessState.Success() {
+	} else if !cmd.ProcessState.Success() {
 		hasLines = false
 	}
 	pre, ctx, post := getContext(body, pos.q0)
