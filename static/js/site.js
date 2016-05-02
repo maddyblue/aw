@@ -138,7 +138,7 @@ var Results = React.createClass({
 				React.createElement(
 					'div',
 					{ style: resultNameStyle },
-					r.Pos,
+					React.createElement(Pos, { pos: r.Pos }),
 					' ',
 					r.Name,
 					React.createElement(
@@ -219,7 +219,7 @@ var Pos = React.createClass({
 		if (match) {
 			pos = match[1] + ':' + match[2];
 		}
-		match = this.props.pos.match(/(.*):(.*):(.*)/);
+		match = this.props.pos.match(/(.*):(.*)/);
 		if (match) {
 			pos = this.props.pos;
 		}

@@ -98,7 +98,7 @@ var Results = React.createClass({
 			return (
 				<div key={idx}>
 					<div style={resultNameStyle}>
-						{r.Pos} {r.Name}
+						<Pos pos={r.Pos}/> {r.Name}
 						<button style={btnStyle} onClick={function() { that.props.clear(idx); }}>clear</button>
 					</div>
 					<div style={{}}>{r.Pre}<b>{r.Context}</b>{r.Post}</div>
@@ -156,7 +156,7 @@ var Pos = React.createClass({
 		if (match) {
 			pos = match[1] + ':' + match[2];
 		}
-		match = this.props.pos.match(/(.*):(.*):(.*)/);
+		match = this.props.pos.match(/(.*):(.*)/);
 		if (match) {
 			pos = this.props.pos;
 		}
