@@ -42,6 +42,9 @@ var Main = React.createClass({
 		localStorage.setItem('scope', v);
 		this.setState({ Scope: v });
 	},
+	clearAll: function () {
+		this.setState({ Results: [] });
+	},
 	clear: function (idx) {
 		this.setState({ Results: this.state.Results.filter(function (x, i) {
 				return i != idx;
@@ -71,9 +74,14 @@ var Main = React.createClass({
 		return React.createElement(
 			'div',
 			null,
-			'guru scope: ',
-			React.createElement('input', { style: { marginBottom: '10px', width: '500px' }, onChange: this.setScope, value: this.state.Scope }),
 			windows,
+			React.createElement(
+				'button',
+				{ onClick: this.clearAll },
+				'clear all'
+			),
+			' | guru scope: ',
+			React.createElement('input', { style: { marginBottom: '10px', width: '500px' }, onChange: this.setScope, value: this.state.Scope }),
 			React.createElement('hr', null),
 			React.createElement(Results, { results: this.state.Results, clear: this.clear })
 		);
