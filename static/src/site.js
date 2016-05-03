@@ -47,7 +47,7 @@ var Main = React.createClass({
 	render: function() {
 		var that = this;
 		var windows = this.state.Windows.map(function(w) {
-			var name = w.Name.substr(w.Name.lastIndexOf('/') + 1);
+			var name = <span title={w.Name}>{w.Name.substr(w.Name.lastIndexOf('/') + 1)}</span>;
 			var buttons = ['describe', 'docs', 'referrers', 'definition', 'implements', 'callees', 'callers', 'callstack', 'pointsto', 'whicherrs', 'what'].map(function(c) {
 				return <button key={c} style={btnStyle} onClick={function() {that.command(c, w.ID)}}>{c}</button>;
 			});
