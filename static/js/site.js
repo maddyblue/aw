@@ -6,7 +6,9 @@ var Main = React.createClass({
 		return {
 			Windows: [],
 			Results: [],
-			Scope: localStorage.getItem('scope')
+			Scope: localStorage.getItem('scope') || '',
+			Exclude: localStorage.getItem('exclude') || '_test.go',
+			Include: localStorage.getItem('include') || ''
 		};
 	},
 	componentDidMount: function () {
@@ -38,6 +40,16 @@ var Main = React.createClass({
 		var v = event.target.value;
 		localStorage.setItem('scope', v);
 		this.setState({ Scope: v });
+	},
+	setExcludeFilter: function (event) {
+		var v = event.target.value;
+		localStorage.setItem('exclude', v);
+		this.setState({ Exclude: v });
+	},
+	setIncludeFilter: function (event) {
+		var v = event.target.value;
+		localStorage.setItem('include', v);
+		this.setState({ Include: v });
 	},
 	clearAll: function () {
 		this.setState({ Results: [] });
@@ -100,9 +112,13 @@ var Main = React.createClass({
 				'clear all'
 			),
 			' | guru scope: ',
-			React.createElement('input', { style: { marginBottom: '10px', width: '500px' }, onChange: this.setScope, value: this.state.Scope }),
+			React.createElement('input', { style: { marginBottom: '10px', width: '300px' }, onChange: this.setScope, value: this.state.Scope }),
+			'  | exclude: ',
+			React.createElement('input', { style: { width: '100px' }, onChange: this.setExcludeFilter, value: this.state.Exclude }),
+			'  | include: ',
+			React.createElement('input', { style: { width: '100px' }, onChange: this.setIncludeFilter, value: this.state.Include }),
 			React.createElement('hr', null),
-			React.createElement(Results, { results: this.state.Results, clear: this.clear })
+			React.createElement(Results, { results: this.state.Results, clear: this.clear, exclude: this.state.Exclude, include: this.state.Include })
 		);
 	}
 });
@@ -117,11 +133,18 @@ var Results = React.createClass({
 		var results = this.props.results.map(function (r, idx) {
 			var content;
 			if (r.Lines) {
-				var lines = r.Data.trim().split('\n').map(function (line, lidx) {
+				var lines = [];
+				r.Data.trim().split('\n').forEach(function (line, lidx) {
 					var sp = line.split(': ');
 					var pos = sp[0];
+					if (that.props.exclude && pos.match(that.props.exclude)) {
+						return;
+					}
+					if (that.props.include && !pos.match(that.props.include)) {
+						return;
+					}
 					var text = sp.slice(1).join(': ');
-					return React.createElement(
+					lines.push(React.createElement(
 						'tr',
 						{ key: lidx },
 						React.createElement(
@@ -138,7 +161,7 @@ var Results = React.createClass({
 								text
 							)
 						)
-					);
+					));
 				});
 				content = React.createElement(
 					'table',
