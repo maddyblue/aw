@@ -47,20 +47,22 @@ var Main = React.createClass({
 	render: function() {
 		var that = this;
 		var windows = this.state.Windows.map(function(w) {
-			var name = <span title={w.Name}>{w.Name.substr(w.Name.lastIndexOf('/') + 1)}</span>;
-			var buttons = ['describe', 'docs', 'referrers', 'definition', 'implements', 'callees', 'callers', 'callstack', 'pointsto', 'whicherrs', 'what'].map(function(c) {
-				return <button key={c} style={btnStyle} onClick={function() {that.command(c, w.ID)}}>{c}</button>;
+			var buttons = buttonTypes.map(function(c) {
+				var name = c[0];
+				var tooltip = c[1];
+				return <button key={name} title={tooltip} style={btnStyle} onClick={function() {that.command(name, w.ID)}}>{name}</button>;
 			});
+			var filename = <span title={w.Name}>{w.Name.substr(w.Name.lastIndexOf('/') + 1)}</span>;
 			return (
-				<div style={nameDivStyle} key={w.ID}>
-					{name}:
-					{buttons}
-				</div>
+				<tr key={w.ID}>
+					<td>{filename}:</td>
+					<td>{buttons}</td>
+				</tr>
 			);
 		});
 		return (
 			<div>
-				{windows}
+				<table><tbody>{windows}</tbody></table>
 				<button onClick={this.clearAll}>clear all</button>
 				&nbsp;| guru scope: <input style={{marginBottom: '10px', width: '500px'}} onChange={this.setScope} value={this.state.Scope} />
 				<hr/>
@@ -69,6 +71,23 @@ var Main = React.createClass({
 		);
 	}
 });
+
+var buttonTypes = [
+	['describe', 'describe selected syntax: definition, methods, etc'],
+	['docs', 'documentation of selected identifier'],
+
+	['callees', 'show possible targets of selected function call'],
+	['callers', 'show possible callers of selected function'],
+	['callstack', 'show path from callgraph root to selected function'],
+	['definition', 'show declaration of selected identifier'],
+	['freevars', 'show free variables of selection'],
+	['implements', 'show \'implements\' relation for selected type or method'],
+	['peers', 'show send/receive corresponding to selected channel op'],
+	['pointsto', 'show variables the selected pointer may point to'],
+	['referrers', 'show all refs to entity denoted by selected identifier'],
+	['what', 'show basic information about the selected syntax node'],
+        ['whicherrs', 'show possible values of the selected error variable'],
+];
 
 var Results = React.createClass({
 	render: function() {
@@ -132,12 +151,8 @@ var resultStyle = {
 	padding: '10px'
 };
 
-var nameDivStyle = {
-	marginBottom: '5px'
-};
-
 var btnStyle = {
-	marginLeft: '10px'
+	marginLeft: '5px'
 };
 
 function Fetch(path, params) {
