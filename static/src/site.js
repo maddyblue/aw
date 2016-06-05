@@ -87,6 +87,7 @@ var Main = React.createClass({
 });
 
 var buttonTypes = [
+	['definition', 'go to definition'],
 	['describe', 'describe selected syntax: definition, methods, etc'],
 	['docs', 'documentation of selected identifier'],
 

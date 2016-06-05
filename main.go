@@ -111,14 +111,10 @@ func listWindows() interface{} {
 	}
 }
 
-func Open(r *http.Request) (interface{}, error) {
-	b, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
+func open(b []byte) error {
 	port, err := plumb.Open("send", plan9.OWRITE)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer port.Close()
 	msg := &plumb.Message{
@@ -126,7 +122,15 @@ func Open(r *http.Request) (interface{}, error) {
 		Type: "text",
 		Data: b,
 	}
-	return nil, msg.Send(port)
+	return msg.Send(port)
+}
+
+func Open(r *http.Request) (interface{}, error) {
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	return nil, open(b)
 }
 
 func Command(r *http.Request) (interface{}, error) {
@@ -146,6 +150,10 @@ func Command(r *http.Request) (interface{}, error) {
 	var args []string
 	var hasLines bool
 	switch command {
+	case "definition":
+		bin = "godef"
+		args = []string{"-i", "-o", strconv.Itoa(pos.q0)}
+		modified = string(body)
 	case "docs":
 		bin = "gogetdoc"
 		args = []string{"-modified", "-pos", pos.String()}
@@ -161,11 +169,17 @@ func Command(r *http.Request) (interface{}, error) {
 	cmd := exec.Command(bin, args...)
 	cmd.Stdin = strings.NewReader(modified)
 	b, err := cmd.CombinedOutput()
-	s := string(b)
+	s := strings.TrimSpace(string(b))
 	if err != nil {
 		s = fmt.Sprintf("%s: %s", err, s)
 	} else if !cmd.ProcessState.Success() {
 		hasLines = false
+	}
+	if command == "definition" && cmd.ProcessState.Success() {
+		if !strings.HasPrefix(s, "/") {
+			s = fmt.Sprintf("%s:%s", pos.file, s)
+		}
+		open([]byte(s))
 	}
 	pre, ctx, post := getContext(body, pos.q0)
 	return struct {
@@ -198,7 +212,7 @@ func getContext(b []byte, at int) (pre, ctx, post string) {
 		right = 0
 	}
 	emphl := at
-	for emphl >= left {
+	for emphl >= left && emphl < len(b) {
 		if unicode.IsLetter(rune(b[emphl])) {
 			emphl--
 		} else {
@@ -206,7 +220,7 @@ func getContext(b []byte, at int) (pre, ctx, post string) {
 		}
 	}
 	emphr := at
-	for emphr < at+right {
+	for emphr < at+right && emphr < len(b) {
 		if unicode.IsLetter(rune(b[emphr])) {
 			emphr++
 		} else {
