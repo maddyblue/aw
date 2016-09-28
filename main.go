@@ -17,6 +17,7 @@ import (
 	"9fans.net/go/plan9"
 	"9fans.net/go/plumb"
 	"golang.org/x/net/websocket"
+	"golang.org/x/tools/oracle/serial"
 )
 
 var (
@@ -150,10 +151,6 @@ func Command(r *http.Request) (interface{}, error) {
 	var args []string
 	var hasLines bool
 	switch command {
-	case "definition":
-		bin = "godef"
-		args = []string{"-i", "-o", strconv.Itoa(pos.q0)}
-		modified = string(body)
 	case "docs":
 		bin = "gogetdoc"
 		args = []string{"-modified", "-pos", pos.String()}
@@ -163,7 +160,10 @@ func Command(r *http.Request) (interface{}, error) {
 		if scope != "" {
 			args = append(args, "-scope", scope)
 		}
-		args = append(args, command, pos.String())
+		if command == "definition" {
+			args = append(args, "-json")
+		}
+		args = append(args, command, pos.String2())
 		hasLines = true
 	}
 	cmd := exec.Command(bin, args...)
@@ -176,10 +176,13 @@ func Command(r *http.Request) (interface{}, error) {
 		hasLines = false
 	}
 	if command == "definition" && cmd.ProcessState.Success() {
-		if !strings.HasPrefix(s, "/") {
-			s = fmt.Sprintf("%s:%s", pos.file, s)
+		var def serial.Definition
+		if err := json.Unmarshal([]byte(s), &def); err != nil {
+			s = fmt.Sprintf("%s: %s", err, s)
+		} else {
+			open([]byte(def.ObjPos))
+			s = fmt.Sprintf("%s: %s", def.ObjPos, def.Desc)
 		}
-		open([]byte(s))
 	}
 	pre, ctx, post := getContext(body, pos.q0)
 	return struct {
@@ -284,6 +287,10 @@ type Pos struct {
 
 func (p Pos) String() string {
 	return fmt.Sprintf("%s:#%d", p.file, p.q0)
+}
+
+func (p Pos) String2() string {
+	return fmt.Sprintf("%s,#%d", p, p.q1)
 }
 
 func runeOffset2ByteOffset(b []byte, off int) int {
