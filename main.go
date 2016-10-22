@@ -17,7 +17,7 @@ import (
 	"9fans.net/go/plan9"
 	"9fans.net/go/plumb"
 	"golang.org/x/net/websocket"
-	"golang.org/x/tools/oracle/serial"
+	"golang.org/x/tools/cmd/guru/serial"
 )
 
 var (
