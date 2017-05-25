@@ -8,7 +8,8 @@ var Main = React.createClass({
 			Results: [],
 			Scope: localStorage.getItem('scope') || '',
 			Exclude: localStorage.getItem('exclude') || '_test.go',
-			Include: localStorage.getItem('include') || ''
+			Include: localStorage.getItem('include') || '',
+			Find: ''
 		};
 	},
 	componentDidMount: function () {
@@ -53,11 +54,37 @@ var Main = React.createClass({
 	},
 	clearAll: function () {
 		this.setState({ Results: [] });
+		this.clearFind();
 	},
 	clear: function (idx) {
 		this.setState({ Results: this.state.Results.filter(function (x, i) {
 				return i != idx;
 			}) });
+	},
+	setFind: function (event) {
+		var v = event.target.value;
+		this.setState({ Find: v });
+		if (v.length < 3) {
+			return;
+		}
+		var body = new FormData();
+		body.set('find', v);
+		body.set('scope', this.state.Scope);
+		Fetch('find', {
+			method: 'POST',
+			body: body
+		}).then(function (data) {
+			if (!data || data.Input != v) {
+				return;
+			}
+			this.setState({ Found: data.Found });
+		}.bind(this));
+	},
+	clearFind: function () {
+		this.setState({
+			Found: [],
+			Find: ''
+		});
 	},
 	render: function () {
 		var that = this;
@@ -117,13 +144,43 @@ var Main = React.createClass({
 			React.createElement('input', { style: { width: '100px' }, onChange: this.setExcludeFilter, value: this.state.Exclude }),
 			'  | include: ',
 			React.createElement('input', { style: { width: '100px' }, onChange: this.setIncludeFilter, value: this.state.Include }),
+			'  | find: ',
+			React.createElement('input', { style: { width: '100px' }, onChange: this.setFind, value: this.state.Find }),
 			React.createElement('hr', null),
+			React.createElement(Found, { found: this.state.Found, clear: this.clearFind }),
 			React.createElement(Results, { results: this.state.Results, clear: this.clear, exclude: this.state.Exclude, include: this.state.Include })
 		);
 	}
 });
 
-var buttonTypes = [['definition', 'go to definition'], ['describe', 'describe selected syntax: definition, methods, etc'], ['docs', 'documentation of selected identifier'], ['callees', 'show possible targets of selected function call'], ['callers', 'show possible callers of selected function'], ['callstack', 'show path from callgraph root to selected function'], ['definition', 'show declaration of selected identifier'], ['freevars', 'show free variables of selection'], ['implements', 'show \'implements\' relation for selected type or method'], ['peers', 'show send/receive corresponding to selected channel op'], ['pointsto', 'show variables the selected pointer may point to'], ['referrers', 'show all refs to entity denoted by selected identifier'], ['what', 'show basic information about the selected syntax node'], ['whicherrs', 'show possible values of the selected error variable']];
+var Found = React.createClass({
+	displayName: 'Found',
+
+	render: function () {
+		if (!this.props.found) {
+			return null;
+		}
+		var that = this;
+		var results = this.props.found.map(function (r, idx) {
+			return React.createElement(
+				'div',
+				{ key: r },
+				React.createElement(
+					'a',
+					{ href: r, onClick: open(r, that.props.clear) },
+					r
+				)
+			);
+		});
+		return React.createElement(
+			'div',
+			null,
+			results
+		);
+	}
+});
+
+var buttonTypes = [['definition', 'go to definition'], ['describe', 'describe selected syntax: definition, methods, etc'], ['docs', 'documentation of selected identifier'], ['callees', 'show possible targets of selected function call'], ['callers', 'show possible callers of selected function'], ['callstack', 'show path from callgraph root to selected function'], ['freevars', 'show free variables of selection'], ['implements', 'show \'implements\' relation for selected type or method'], ['peers', 'show send/receive corresponding to selected channel op'], ['pointsto', 'show variables the selected pointer may point to'], ['referrers', 'show all refs to entity denoted by selected identifier'], ['what', 'show basic information about the selected syntax node'], ['whicherrs', 'show possible values of the selected error variable']];
 
 var Results = React.createClass({
 	displayName: 'Results',
@@ -282,10 +339,13 @@ var Pos = React.createClass({
 	}
 });
 
-function open(pos) {
+function open(pos, cb) {
 	return function (e) {
 		e.preventDefault();
 		Fetch('open', { method: 'POST', body: pos });
+		if (cb) {
+			cb();
+		}
 	};
 }
 
