@@ -2,15 +2,19 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	"9fans.net/go/acme"
@@ -28,12 +32,15 @@ var (
 func main() {
 	flag.Parse()
 
+	goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
+
 	webFS := FS(*flagDev)
 	http.Handle("/static/", http.FileServer(webFS))
 	http.Handle("/ws", websocket.Handler(WS))
 	http.HandleFunc("/", Index)
 	http.HandleFunc("/api/open", wrap(Open))
 	http.HandleFunc("/api/command", wrap(Command))
+	http.HandleFunc("/api/find", wrap(Find))
 	fmt.Println("listening on", *flagAddr)
 	log.Fatal(http.ListenAndServe(*flagAddr, nil))
 }
@@ -302,6 +309,48 @@ func runeOffset2ByteOffset(b []byte, off int) int {
 		r++
 	}
 	return len(b)
+}
+
+var (
+	findLock   sync.Mutex
+	findCancel context.CancelFunc
+	goPath     string
+)
+
+func getFindCtx() context.Context {
+	findLock.Lock()
+	if findCancel != nil {
+		findCancel()
+	}
+	var ctx context.Context
+	ctx, findCancel = context.WithCancel(context.Background())
+	findLock.Unlock()
+	return ctx
+}
+
+func Find(r *http.Request) (interface{}, error) {
+	name := strings.TrimSpace(r.FormValue("find"))
+	scope := strings.TrimSpace(r.FormValue("scope"))
+	scope = strings.TrimRight(scope, ".")
+	path := filepath.Join(goPath, "src", scope)
+
+	name = "*" + name + "*"
+	out, err := exec.CommandContext(getFindCtx(), "find", path, "-type", "f", "-iname", name).Output()
+	if err != nil {
+		return nil, err
+	}
+	res := strings.Split(string(out), "\n")
+	const limit = 50
+	if len(res) > limit {
+		res = res[:limit]
+	}
+	return struct {
+		Input string
+		Found []string
+	}{
+		Input: r.FormValue("find"),
+		Found: res,
+	}, nil
 }
 
 //go:generate browserify -t [ babelify --presets [ react ] ] static/src/site.js -o static/js/site.js

@@ -6,6 +6,7 @@ var Main = React.createClass({
 			Scope: localStorage.getItem('scope') || '',
 			Exclude: localStorage.getItem('exclude') || '_test.go',
 			Include: localStorage.getItem('include') || '',
+			Find: '',
 		};
 	},
 	componentDidMount: function() {
@@ -50,11 +51,37 @@ var Main = React.createClass({
 	},
 	clearAll: function() {
 		this.setState({Results: []});
+		this.clearFind();
 	},
 	clear: function(idx) {
 		this.setState({Results: this.state.Results.filter(function(x, i) {
 			return i != idx;
 		})});
+	},
+	setFind: function(event) {
+		var v = event.target.value;
+		this.setState({Find: v});
+		if (v.length < 3) {
+			return;
+		}
+		var body = new FormData();
+		body.set('find', v);
+		body.set('scope', this.state.Scope);
+		Fetch('find', {
+			method: 'POST',
+			body: body
+		}).then(function(data) {
+			if (!data || data.Input != v) {
+				return;
+			}
+			this.setState({Found: data.Found});
+		}.bind(this));
+	},
+	clearFind: function() {
+		this.setState({
+			Found: [],
+			Find: ''
+		});
 	},
 	render: function() {
 		var that = this;
@@ -79,10 +106,27 @@ var Main = React.createClass({
 				&nbsp;| guru scope: <input style={{marginBottom: '10px', width: '300px'}} onChange={this.setScope} value={this.state.Scope} />
 				&nbsp; | exclude: <input style={{width: '100px'}} onChange={this.setExcludeFilter} value={this.state.Exclude} />
 				&nbsp; | include: <input style={{width: '100px'}} onChange={this.setIncludeFilter} value={this.state.Include} />
+				&nbsp; | find: <input style={{width: '100px'}} onChange={this.setFind} value={this.state.Find} />
 				<hr/>
+				<Found found={this.state.Found} clear={this.clearFind} />
 				<Results results={this.state.Results} clear={this.clear} exclude={this.state.Exclude} include={this.state.Include} />
 			</div>
 		);
+	}
+});
+
+var Found = React.createClass({
+	render: function() {
+		if (!this.props.found) {
+			return null;
+		}
+		var that = this;
+		var results = this.props.found.map(function(r, idx) {
+			return <div key={r}>
+				<a href={r} onClick={open(r, that.props.clear)}>{r}</a>
+			</div>;
+		});
+		return <div>{results}</div>;
 	}
 });
 
@@ -204,10 +248,13 @@ var Pos = React.createClass({
 	}
 });
 
-function open(pos) {
+function open(pos, cb) {
 	return function(e) {
 		e.preventDefault();
 		Fetch('open', { method: 'POST', body: pos });
+		if (cb) {
+			cb();
+		}
 	};
 }
 
