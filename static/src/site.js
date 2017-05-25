@@ -101,7 +101,7 @@ var buttonTypes = [
 	['pointsto', 'show variables the selected pointer may point to'],
 	['referrers', 'show all refs to entity denoted by selected identifier'],
 	['what', 'show basic information about the selected syntax node'],
-        ['whicherrs', 'show possible values of the selected error variable'],
+	['whicherrs', 'show possible values of the selected error variable'],
 ];
 
 var Results = React.createClass({
