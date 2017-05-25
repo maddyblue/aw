@@ -94,7 +94,6 @@ var buttonTypes = [
 	['callees', 'show possible targets of selected function call'],
 	['callers', 'show possible callers of selected function'],
 	['callstack', 'show path from callgraph root to selected function'],
-	['definition', 'show declaration of selected identifier'],
 	['freevars', 'show free variables of selection'],
 	['implements', 'show \'implements\' relation for selected type or method'],
 	['peers', 'show send/receive corresponding to selected channel op'],
