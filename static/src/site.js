@@ -60,7 +60,10 @@ var Main = React.createClass({
 	},
 	setFind: function(event) {
 		var v = event.target.value;
-		this.setState({Find: v});
+		this.setState({
+			Find: v,
+			Found: null,
+		});
 		if (v.length < 3) {
 			return;
 		}
@@ -79,7 +82,7 @@ var Main = React.createClass({
 	},
 	clearFind: function() {
 		this.setState({
-			Found: [],
+			Found: null,
 			Find: ''
 		});
 	},
@@ -108,7 +111,7 @@ var Main = React.createClass({
 				&nbsp; | include: <input style={{width: '100px'}} onChange={this.setIncludeFilter} value={this.state.Include} />
 				&nbsp; | find: <input style={{width: '100px'}} onChange={this.setFind} value={this.state.Find} />
 				<hr/>
-				<Found found={this.state.Found} clear={this.clearFind} />
+				<Found found={this.state.Found} find={this.state.Find} clear={this.clearFind} />
 				<Results results={this.state.Results} clear={this.clear} exclude={this.state.Exclude} include={this.state.Include} />
 			</div>
 		);
@@ -117,16 +120,21 @@ var Main = React.createClass({
 
 var Found = React.createClass({
 	render: function() {
-		if (!this.props.found) {
+		if (!this.props.find || this.props.find.length < 3) {
 			return null;
 		}
 		var that = this;
-		var results = this.props.found.map(function(r, idx) {
+		var found = this.props.found || [];
+		var results = found.map(function(r, idx) {
 			return <div key={r}>
 				<a href={r} onClick={open(r, that.props.clear)}>{r}</a>
 			</div>;
 		});
-		return <div>{results}</div>;
+		return <div>
+			<h2>find {this.props.find} ({this.props.found ? this.props.found.length : '...'})</h2>
+			{results}
+			<hr/>
+		</div>;
 	}
 });
 
@@ -226,7 +234,9 @@ function Fetch(path, params) {
 		alert(error);
 	})
 	.then(function(resp) {
-		return resp.json();
+		if (resp.ok) {
+			return resp.json();
+		}
 	});
 }
 

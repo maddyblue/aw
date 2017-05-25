@@ -63,7 +63,10 @@ var Main = React.createClass({
 	},
 	setFind: function (event) {
 		var v = event.target.value;
-		this.setState({ Find: v });
+		this.setState({
+			Find: v,
+			Found: null
+		});
 		if (v.length < 3) {
 			return;
 		}
@@ -82,7 +85,7 @@ var Main = React.createClass({
 	},
 	clearFind: function () {
 		this.setState({
-			Found: [],
+			Found: null,
 			Find: ''
 		});
 	},
@@ -147,7 +150,7 @@ var Main = React.createClass({
 			'  | find: ',
 			React.createElement('input', { style: { width: '100px' }, onChange: this.setFind, value: this.state.Find }),
 			React.createElement('hr', null),
-			React.createElement(Found, { found: this.state.Found, clear: this.clearFind }),
+			React.createElement(Found, { found: this.state.Found, find: this.state.Find, clear: this.clearFind }),
 			React.createElement(Results, { results: this.state.Results, clear: this.clear, exclude: this.state.Exclude, include: this.state.Include })
 		);
 	}
@@ -157,11 +160,12 @@ var Found = React.createClass({
 	displayName: 'Found',
 
 	render: function () {
-		if (!this.props.found) {
+		if (!this.props.find || this.props.find.length < 3) {
 			return null;
 		}
 		var that = this;
-		var results = this.props.found.map(function (r, idx) {
+		var found = this.props.found || [];
+		var results = found.map(function (r, idx) {
 			return React.createElement(
 				'div',
 				{ key: r },
@@ -175,7 +179,17 @@ var Found = React.createClass({
 		return React.createElement(
 			'div',
 			null,
-			results
+			React.createElement(
+				'h2',
+				null,
+				'find ',
+				this.props.find,
+				' (',
+				this.props.found ? this.props.found.length : '...',
+				')'
+			),
+			results,
+			React.createElement('hr', null)
 		);
 	}
 });
@@ -307,7 +321,9 @@ function Fetch(path, params) {
 	return fetch('/api/' + path, params).catch(function (error) {
 		alert(error);
 	}).then(function (resp) {
-		return resp.json();
+		if (resp.ok) {
+			return resp.json();
+		}
 	});
 }
 
