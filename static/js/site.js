@@ -83,6 +83,14 @@ var Main = React.createClass({
 			this.setState({ Found: data.Found });
 		}.bind(this));
 	},
+	findPress: function (e) {
+		if (e.key === 'Enter') {
+			if (!this.state.Found || this.state.Found.length < 1) {
+				return;
+			}
+			open(this.state.Found[0], this.clearFind)(e);
+		}
+	},
 	clearFind: function () {
 		this.setState({
 			Found: null,
@@ -148,7 +156,7 @@ var Main = React.createClass({
 			'  | include: ',
 			React.createElement('input', { style: { width: '100px' }, onChange: this.setIncludeFilter, value: this.state.Include }),
 			'  | find: ',
-			React.createElement('input', { style: { width: '100px' }, onChange: this.setFind, value: this.state.Find }),
+			React.createElement('input', { style: { width: '100px' }, onChange: this.setFind, onKeyPress: this.findPress, value: this.state.Find }),
 			React.createElement('hr', null),
 			React.createElement(Found, { found: this.state.Found, find: this.state.Find, clear: this.clearFind }),
 			React.createElement(Results, { results: this.state.Results, clear: this.clear, exclude: this.state.Exclude, include: this.state.Include })

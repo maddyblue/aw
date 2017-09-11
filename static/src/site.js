@@ -80,6 +80,14 @@ var Main = React.createClass({
 			this.setState({Found: data.Found});
 		}.bind(this));
 	},
+	findPress: function(e) {
+		if (e.key === 'Enter') {
+			if (!this.state.Found || this.state.Found.length < 1) {
+				return;
+			}
+			open(this.state.Found[0], this.clearFind)(e);
+		}
+	},
 	clearFind: function() {
 		this.setState({
 			Found: null,
@@ -109,7 +117,7 @@ var Main = React.createClass({
 				&nbsp;| guru scope: <input style={{marginBottom: '10px', width: '300px'}} onChange={this.setScope} value={this.state.Scope} />
 				&nbsp; | exclude: <input style={{width: '100px'}} onChange={this.setExcludeFilter} value={this.state.Exclude} />
 				&nbsp; | include: <input style={{width: '100px'}} onChange={this.setIncludeFilter} value={this.state.Include} />
-				&nbsp; | find: <input style={{width: '100px'}} onChange={this.setFind} value={this.state.Find} />
+				&nbsp; | find: <input style={{width: '100px'}} onChange={this.setFind} onKeyPress={this.findPress} value={this.state.Find} />
 				<hr/>
 				<Found found={this.state.Found} find={this.state.Find} clear={this.clearFind} />
 				<Results results={this.state.Results} clear={this.clear} exclude={this.state.Exclude} include={this.state.Include} />
