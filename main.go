@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -340,6 +341,7 @@ func Find(r *http.Request) (interface{}, error) {
 		return nil, err
 	}
 	res := strings.Split(strings.TrimSpace(string(out)), "\n")
+	sort.Strings(res)
 	const limit = 50
 	if len(res) > limit {
 		res = res[:limit]
