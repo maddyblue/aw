@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -33,7 +32,11 @@ var (
 func main() {
 	flag.Parse()
 
-	goPath = strings.Split(os.Getenv("GOPATH"), ":")[0]
+	out, err := exec.Command("go", "env", "GOPATH").Output()
+	if err != nil {
+		panic(err)
+	}
+	goPath = strings.TrimSpace(string(out))
 
 	webFS := FS(*flagDev)
 	http.Handle("/static/", http.FileServer(webFS))
