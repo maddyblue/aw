@@ -29,34 +29,38 @@ var Main = React.createClass({
 		body.set('scope', this.state.Scope);
 		Fetch('command', {
 			method: 'POST',
-			body: body
-		}).then(function(data) {
-			this.setState({Results: [data].concat(this.state.Results)});
-		}.bind(this));
+			body: body,
+		}).then(
+			function(data) {
+				this.setState({ Results: [data].concat(this.state.Results) });
+			}.bind(this)
+		);
 	},
 	setScope: function(event) {
 		var v = event.target.value;
 		localStorage.setItem('scope', v);
-		this.setState({Scope: v});
+		this.setState({ Scope: v });
 	},
 	setExcludeFilter: function(event) {
 		var v = event.target.value;
 		localStorage.setItem('exclude', v);
-		this.setState({Exclude: v});
+		this.setState({ Exclude: v });
 	},
 	setIncludeFilter: function(event) {
 		var v = event.target.value;
 		localStorage.setItem('include', v);
-		this.setState({Include: v});
+		this.setState({ Include: v });
 	},
 	clearAll: function() {
-		this.setState({Results: []});
+		this.setState({ Results: [] });
 		this.clearFind();
 	},
 	clear: function(idx) {
-		this.setState({Results: this.state.Results.filter(function(x, i) {
-			return i != idx;
-		})});
+		this.setState({
+			Results: this.state.Results.filter(function(x, i) {
+				return i != idx;
+			}),
+		});
 	},
 	setFind: function(event) {
 		var v = event.target.value;
@@ -72,13 +76,15 @@ var Main = React.createClass({
 		body.set('scope', this.state.Scope);
 		Fetch('find', {
 			method: 'POST',
-			body: body
-		}).then(function(data) {
-			if (!data || data.Input != v) {
-				return;
-			}
-			this.setState({Found: data.Found});
-		}.bind(this));
+			body: body,
+		}).then(
+			function(data) {
+				if (!data || data.Input != v) {
+					return;
+				}
+				this.setState({ Found: data.Found });
+			}.bind(this)
+		);
 	},
 	findPress: function(e) {
 		if (e.key === 'Enter') {
@@ -91,7 +97,7 @@ var Main = React.createClass({
 	clearFind: function() {
 		this.setState({
 			Found: null,
-			Find: ''
+			Find: '',
 		});
 	},
 	render: function() {
@@ -100,9 +106,22 @@ var Main = React.createClass({
 			var buttons = buttonTypes.map(function(c) {
 				var name = c[0];
 				var tooltip = c[1];
-				return <button key={name} title={tooltip} style={btnStyle} onClick={function() {that.command(name, w.ID)}}>{name}</button>;
+				return (
+					<button
+						key={name}
+						title={tooltip}
+						style={btnStyle}
+						onClick={function() {
+							that.command(name, w.ID);
+						}}
+					>
+						{name}
+					</button>
+				);
 			});
-			var filename = <span title={w.Name}>{w.Name.substr(w.Name.lastIndexOf('/') + 1)}</span>;
+			var filename = (
+				<span title={w.Name}>{w.Name.substr(w.Name.lastIndexOf('/') + 1)}</span>
+			);
 			return (
 				<tr key={w.ID}>
 					<td>{filename}:</td>
@@ -112,18 +131,50 @@ var Main = React.createClass({
 		});
 		return (
 			<div>
-				<table><tbody>{windows}</tbody></table>
+				<table>
+					<tbody>{windows}</tbody>
+				</table>
 				<button onClick={this.clearAll}>clear all</button>
-				&nbsp;| guru scope: <input style={{marginBottom: '10px', width: '300px'}} onChange={this.setScope} value={this.state.Scope} />
-				&nbsp; | exclude: <input style={{width: '100px'}} onChange={this.setExcludeFilter} value={this.state.Exclude} />
-				&nbsp; | include: <input style={{width: '100px'}} onChange={this.setIncludeFilter} value={this.state.Include} />
-				&nbsp; | find: <input style={{width: '100px'}} onChange={this.setFind} onKeyPress={this.findPress} value={this.state.Find} />
-				<hr/>
-				<Found found={this.state.Found} find={this.state.Find} clear={this.clearFind} />
-				<Results results={this.state.Results} clear={this.clear} exclude={this.state.Exclude} include={this.state.Include} />
+				&nbsp;| guru scope:{' '}
+				<input
+					style={{ marginBottom: '10px', width: '300px' }}
+					onChange={this.setScope}
+					value={this.state.Scope}
+				/>
+				&nbsp; | exclude:{' '}
+				<input
+					style={{ width: '100px' }}
+					onChange={this.setExcludeFilter}
+					value={this.state.Exclude}
+				/>
+				&nbsp; | include:{' '}
+				<input
+					style={{ width: '100px' }}
+					onChange={this.setIncludeFilter}
+					value={this.state.Include}
+				/>
+				&nbsp; | find:{' '}
+				<input
+					style={{ width: '100px' }}
+					onChange={this.setFind}
+					onKeyPress={this.findPress}
+					value={this.state.Find}
+				/>
+				<hr />
+				<Found
+					found={this.state.Found}
+					find={this.state.Find}
+					clear={this.clearFind}
+				/>
+				<Results
+					results={this.state.Results}
+					clear={this.clear}
+					exclude={this.state.Exclude}
+					include={this.state.Include}
+				/>
 			</div>
 		);
-	}
+	},
 });
 
 var Found = React.createClass({
@@ -134,16 +185,26 @@ var Found = React.createClass({
 		var that = this;
 		var found = this.props.found || [];
 		var results = found.map(function(r, idx) {
-			return <div key={r}>
-				<a href={r} onClick={open(r, that.props.clear)}>{r}</a>
-			</div>;
+			return (
+				<div key={r}>
+					<a href={r} onClick={open(r, that.props.clear)}>
+						{r}
+					</a>
+				</div>
+			);
 		});
-		return <div>
-			<h2>find {this.props.find} ({this.props.found ? this.props.found.length : '...'})</h2>
-			{results}
-			<hr/>
-		</div>;
-	}
+		return (
+			<div>
+				<h2>
+					find {this.props.find} ({this.props.found
+						? this.props.found.length
+						: '...'})
+				</h2>
+				{results}
+				<hr />
+			</div>
+		);
+	},
 });
 
 var buttonTypes = [
@@ -155,7 +216,7 @@ var buttonTypes = [
 	['callers', 'show possible callers of selected function'],
 	['callstack', 'show path from callgraph root to selected function'],
 	['freevars', 'show free variables of selection'],
-	['implements', 'show \'implements\' relation for selected type or method'],
+	['implements', "show 'implements' relation for selected type or method"],
 	['peers', 'show send/receive corresponding to selected channel op'],
 	['pointsto', 'show variables the selected pointer may point to'],
 	['referrers', 'show all refs to entity denoted by selected identifier'],
@@ -170,26 +231,32 @@ var Results = React.createClass({
 			var content;
 			if (r.Lines) {
 				var lines = [];
-				r.Data.trim().split('\n').forEach(function(line, lidx) {
-					var sp = line.split(': ');
-					var pos = sp[0];
-					if (that.props.exclude && pos.match(that.props.exclude)) {
-						return;
-					}
-					if (that.props.include && !pos.match(that.props.include)) {
-						return;
-					}
-					var text = sp.slice(1).join(': ');
-					lines.push(
-						<tr key={lidx}>
-							<td><Pos pos={pos}/></td>
-							<td><pre style={preStyle}>{text}</pre></td>
-						</tr>
-					);
-				});
+				r.Data.trim()
+					.split('\n')
+					.forEach(function(line, lidx) {
+						var sp = line.split(': ');
+						var pos = sp[0];
+						if (that.props.exclude && pos.match(that.props.exclude)) {
+							return;
+						}
+						if (that.props.include && !pos.match(that.props.include)) {
+							return;
+						}
+						var text = sp.slice(1).join(': ');
+						lines.push(
+							<tr key={lidx}>
+								<td>
+									<Pos pos={pos} />
+								</td>
+								<td>
+									<pre style={preStyle}>{text}</pre>
+								</td>
+							</tr>
+						);
+					});
 				content = (
 					<table>
-						<tbody style={{verticalAlign: 'top'}}>{lines}</tbody>
+						<tbody style={{ verticalAlign: 'top' }}>{lines}</tbody>
 					</table>
 				);
 			} else {
@@ -198,54 +265,63 @@ var Results = React.createClass({
 			return (
 				<div key={idx}>
 					<div style={resultNameStyle}>
-						<Pos pos={r.Pos}/> {r.Name}
-						<button style={btnStyle} onClick={function() { that.props.clear(idx); }}>clear</button>
+						<Pos pos={r.Pos} /> {r.Name}
+						<button
+							style={btnStyle}
+							onClick={function() {
+								that.props.clear(idx);
+							}}
+						>
+							clear
+						</button>
 					</div>
-					<div style={{}}>{r.Pre}<b>{r.Context}</b>{r.Post}</div>
-					<div style={resultStyle}>
-						{content}
+					<div style={{}}>
+						{r.Pre}
+						<b>{r.Context}</b>
+						{r.Post}
 					</div>
+					<div style={resultStyle}>{content}</div>
 				</div>
 			);
 		});
 		return <div>{results}</div>;
-	}
+	},
 });
 
 var contextStyle = {
 	fontWeight: 'bold',
-	padding: '2px'
+	padding: '2px',
 };
 
 var resultNameStyle = {
 	backgroundColor: '#efefef',
-	padding: '2px'
+	padding: '2px',
 };
 
 var preStyle = {
 	fontFamily: 'sans-serif',
 	whiteSpace: 'pre-wrap',
-	margin: 0
+	margin: 0,
 };
 
 var resultStyle = {
-	padding: '10px'
+	padding: '10px',
 };
 
 var btnStyle = {
-	marginLeft: '5px'
+	marginLeft: '5px',
 };
 
 function Fetch(path, params) {
 	return fetch('/api/' + path, params)
-	.catch(function (error) {
-		alert(error);
-	})
-	.then(function(resp) {
-		if (resp.ok) {
-			return resp.json();
-		}
-	});
+		.catch(function(error) {
+			alert(error);
+		})
+		.then(function(resp) {
+			if (resp.ok) {
+				return resp.json();
+			}
+		});
 }
 
 var Pos = React.createClass({
@@ -262,8 +338,12 @@ var Pos = React.createClass({
 		if (!pos) {
 			return <span>{this.props.pos}</span>;
 		}
-		return <a href={pos} onClick={open(pos)}>{this.props.pos}</a>;
-	}
+		return (
+			<a href={pos} onClick={open(pos)}>
+				{this.props.pos}
+			</a>
+		);
+	},
 });
 
 function open(pos, cb) {
@@ -277,7 +357,7 @@ function open(pos, cb) {
 }
 
 ReactDOM.render(
-	<div style={{fontFamily: 'sans-serif'}}>
+	<div style={{ fontFamily: 'sans-serif' }}>
 		<Main />
 	</div>,
 	document.getElementById('main')
