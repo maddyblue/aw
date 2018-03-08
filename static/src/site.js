@@ -310,6 +310,8 @@ var resultStyle = {
 
 var btnStyle = {
 	marginLeft: '5px',
+	padding: '1px',
+	fontSize: 'small',
 };
 
 function Fetch(path, params) {
@@ -326,6 +328,13 @@ function Fetch(path, params) {
 
 var Pos = React.createClass({
 	render: function() {
+		if (this.props.pos.startsWith('http')) {
+			return (
+				<a href={this.props.pos} target="_blank">
+					{this.props.pos}
+				</a>
+			);
+		}
 		var pos;
 		var match = this.props.pos.match(/(.*):(.*)\.(.*)-(.*)/);
 		if (match) {

@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"path/filepath"
 	"sort"
@@ -20,6 +21,7 @@ import (
 	"9fans.net/go/acme"
 	"9fans.net/go/plan9"
 	"9fans.net/go/plumb"
+	"github.com/pkg/browser"
 	"golang.org/x/net/websocket"
 	"golang.org/x/tools/cmd/guru/serial"
 )
@@ -147,7 +149,8 @@ func Open(r *http.Request) (interface{}, error) {
 
 func Command(r *http.Request) (interface{}, error) {
 	id := r.FormValue("id")
-	command := r.FormValue("command")
+	origCommand := r.FormValue("command")
+	command := origCommand
 	scope := r.FormValue("scope")
 	wid, err := strconv.Atoi(id)
 	if err != nil {
@@ -158,29 +161,23 @@ func Command(r *http.Request) (interface{}, error) {
 		return nil, err
 	}
 	modified := fmt.Sprintf("%s\n%d\n%s", pos.file, len(body), body)
-	var bin string
-	var args []string
-	var hasLines bool
-	switch command {
-	case "docs":
-		bin = "gogetdoc"
-		args = []string{"-modified", "-pos", pos.String()}
-	default:
-		bin = "guru"
-		args = []string{"-modified"}
-		if scope != "" {
-			args = append(args, "-scope", scope)
-		}
-		if command == "definition" {
-			args = append(args, "-json")
-		}
-		args = append(args, command, pos.String2())
-		hasLines = true
+	args := []string{"-modified"}
+	if scope != "" {
+		args = append(args, "-scope", scope)
 	}
-	cmd := exec.Command(bin, args...)
+	switch origCommand {
+	case "docs":
+		command = "definition"
+	}
+	if command == "definition" {
+		args = append(args, "-json")
+	}
+	args = append(args, command, pos.String2())
+	cmd := exec.Command("guru", args...)
 	cmd.Stdin = strings.NewReader(modified)
 	b, err := cmd.CombinedOutput()
 	s := strings.TrimSpace(string(b))
+	hasLines := true
 	if err != nil {
 		s = fmt.Sprintf("%s: %s", err, s)
 	} else if !cmd.ProcessState.Success() {
@@ -190,6 +187,21 @@ func Command(r *http.Request) (interface{}, error) {
 		var def serial.Definition
 		if err := json.Unmarshal([]byte(s), &def); err != nil {
 			s = fmt.Sprintf("%s: %s", err, s)
+		} else if origCommand == "docs" {
+			parts := strings.Fields(def.Desc)
+			last := parts[len(parts)-1]
+			last = strings.Trim(last, "*")
+			sp := strings.Split(last, ".")
+			if len(sp) > 1 {
+				u := &url.URL{
+					Scheme:   "http",
+					Host:     "localhost:6060",
+					Path:     fmt.Sprintf("/pkg/%s/", strings.Join(sp[:len(sp)-1], ".")),
+					Fragment: sp[len(sp)-1],
+				}
+				browser.OpenURL(u.String())
+				s = fmt.Sprintf("%s: %s", u, def.Desc)
+			}
 		} else {
 			open([]byte(def.ObjPos))
 			s = fmt.Sprintf("%s: %s", def.ObjPos, def.Desc)

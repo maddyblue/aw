@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(){function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s}return e})()({1:[function(require,module,exports){
 var Main = React.createClass({
 	displayName: 'Main',
 
@@ -57,9 +57,11 @@ var Main = React.createClass({
 		this.clearFind();
 	},
 	clear: function (idx) {
-		this.setState({ Results: this.state.Results.filter(function (x, i) {
+		this.setState({
+			Results: this.state.Results.filter(function (x, i) {
 				return i != idx;
-			}) });
+			})
+		});
 	},
 	setFind: function (event) {
 		var v = event.target.value;
@@ -105,9 +107,14 @@ var Main = React.createClass({
 				var tooltip = c[1];
 				return React.createElement(
 					'button',
-					{ key: name, title: tooltip, style: btnStyle, onClick: function () {
+					{
+						key: name,
+						title: tooltip,
+						style: btnStyle,
+						onClick: function () {
 							that.command(name, w.ID);
-						} },
+						}
+					},
 					name
 				);
 			});
@@ -149,17 +156,47 @@ var Main = React.createClass({
 				{ onClick: this.clearAll },
 				'clear all'
 			),
-			' | guru scope: ',
-			React.createElement('input', { style: { marginBottom: '10px', width: '300px' }, onChange: this.setScope, value: this.state.Scope }),
-			'  | exclude: ',
-			React.createElement('input', { style: { width: '100px' }, onChange: this.setExcludeFilter, value: this.state.Exclude }),
-			'  | include: ',
-			React.createElement('input', { style: { width: '100px' }, onChange: this.setIncludeFilter, value: this.state.Include }),
-			'  | find: ',
-			React.createElement('input', { style: { width: '100px' }, onChange: this.setFind, onKeyPress: this.findPress, value: this.state.Find }),
+			'\xA0| guru scope:',
+			' ',
+			React.createElement('input', {
+				style: { marginBottom: '10px', width: '300px' },
+				onChange: this.setScope,
+				value: this.state.Scope
+			}),
+			'\xA0 | exclude:',
+			' ',
+			React.createElement('input', {
+				style: { width: '100px' },
+				onChange: this.setExcludeFilter,
+				value: this.state.Exclude
+			}),
+			'\xA0 | include:',
+			' ',
+			React.createElement('input', {
+				style: { width: '100px' },
+				onChange: this.setIncludeFilter,
+				value: this.state.Include
+			}),
+			'\xA0 | find:',
+			' ',
+			React.createElement('input', {
+				style: { width: '100px' },
+				onChange: this.setFind,
+				onKeyPress: this.findPress,
+				value: this.state.Find
+			}),
 			React.createElement('hr', null),
-			React.createElement(Found, { found: this.state.Found, find: this.state.Find, clear: this.clearFind }),
-			React.createElement(Results, { results: this.state.Results, clear: this.clear, exclude: this.state.Exclude, include: this.state.Include })
+			React.createElement(Found, {
+				found: this.state.Found,
+				find: this.state.Find,
+				clear: this.clearFind
+			}),
+			React.createElement(Results, {
+				results: this.state.Results,
+				clear: this.clear,
+				exclude: this.state.Exclude,
+				include: this.state.Include
+			})
 		);
 	}
 });
@@ -202,7 +239,7 @@ var Found = React.createClass({
 	}
 });
 
-var buttonTypes = [['definition', 'go to definition'], ['describe', 'describe selected syntax: definition, methods, etc'], ['docs', 'documentation of selected identifier'], ['callees', 'show possible targets of selected function call'], ['callers', 'show possible callers of selected function'], ['callstack', 'show path from callgraph root to selected function'], ['freevars', 'show free variables of selection'], ['implements', 'show \'implements\' relation for selected type or method'], ['peers', 'show send/receive corresponding to selected channel op'], ['pointsto', 'show variables the selected pointer may point to'], ['referrers', 'show all refs to entity denoted by selected identifier'], ['what', 'show basic information about the selected syntax node'], ['whicherrs', 'show possible values of the selected error variable']];
+var buttonTypes = [['definition', 'go to definition'], ['describe', 'describe selected syntax: definition, methods, etc'], ['docs', 'documentation of selected identifier'], ['callees', 'show possible targets of selected function call'], ['callers', 'show possible callers of selected function'], ['callstack', 'show path from callgraph root to selected function'], ['freevars', 'show free variables of selection'], ['implements', "show 'implements' relation for selected type or method"], ['peers', 'show send/receive corresponding to selected channel op'], ['pointsto', 'show variables the selected pointer may point to'], ['referrers', 'show all refs to entity denoted by selected identifier'], ['what', 'show basic information about the selected syntax node'], ['whicherrs', 'show possible values of the selected error variable']];
 
 var Results = React.createClass({
 	displayName: 'Results',
@@ -269,9 +306,12 @@ var Results = React.createClass({
 					r.Name,
 					React.createElement(
 						'button',
-						{ style: btnStyle, onClick: function () {
+						{
+							style: btnStyle,
+							onClick: function () {
 								that.props.clear(idx);
-							} },
+							}
+						},
 						'clear'
 					)
 				),
@@ -322,7 +362,9 @@ var resultStyle = {
 };
 
 var btnStyle = {
-	marginLeft: '5px'
+	marginLeft: '5px',
+	padding: '1px',
+	fontSize: 'small'
 };
 
 function Fetch(path, params) {
@@ -339,6 +381,13 @@ var Pos = React.createClass({
 	displayName: 'Pos',
 
 	render: function () {
+		if (this.props.pos.startsWith('http')) {
+			return React.createElement(
+				'a',
+				{ href: this.props.pos, target: '_blank' },
+				this.props.pos
+			);
+		}
 		var pos;
 		var match = this.props.pos.match(/(.*):(.*)\.(.*)-(.*)/);
 		if (match) {
