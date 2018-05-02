@@ -246,7 +246,21 @@ var Results = React.createClass({
 						lines.push(
 							<tr key={lidx}>
 								<td>
-									<Pos pos={pos} />
+									<div
+										style={{
+											maxWidth: '300px',
+											overflow: 'hidden',
+										}}
+									>
+										<div
+											style={{
+												float: 'right',
+											}}
+											title={pos}
+										>
+											<Pos pos={pos} />
+										</div>
+									</div>
 								</td>
 								<td>
 									<pre style={preStyle}>{text}</pre>
@@ -349,7 +363,7 @@ var Pos = React.createClass({
 		}
 		return (
 			<a href={pos} onClick={open(pos)}>
-				{this.props.pos}
+				{pos}
 			</a>
 		);
 	},
