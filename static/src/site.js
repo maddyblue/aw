@@ -196,9 +196,8 @@ var Found = React.createClass({
 		return (
 			<div>
 				<h2>
-					find {this.props.find} ({this.props.found
-						? this.props.found.length
-						: '...'})
+					find {this.props.find} (
+					{this.props.found ? this.props.found.length : '...'})
 				</h2>
 				{results}
 				<hr />
