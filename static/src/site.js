@@ -307,7 +307,7 @@ var contextStyle = {
 };
 
 var resultNameStyle = {
-	backgroundColor: '#efefef',
+	backgroundColor: '#181818',
 	padding: '2px',
 };
 
