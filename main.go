@@ -350,9 +350,9 @@ func Find(r *http.Request) (interface{}, error) {
 	scope = strings.TrimRight(scope, ".")
 	path := filepath.Join(goPath, "src", scope)
 
-	name = "*" + name + "*"
-	out, err := exec.CommandContext(getFindCtx(), "find", path, "-type", "f", "-iname", name).Output()
+	out, err := exec.CommandContext(getFindCtx(), "fd", name, path).CombinedOutput()
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	res := strings.Split(strings.TrimSpace(string(out)), "\n")
